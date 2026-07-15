@@ -28,12 +28,15 @@ function getSessionId(): string {
 }
 
 // 从 Coze SSE 的 data JSON 中提取文本片段
+// Coze stream_run 实测返回结构：{ type:"answer", content:{ answer:"...文本..." , thinking, tool_request, ... }, finish:false }
 function extractText(obj: any): string {
   if (!obj || typeof obj !== "object") return "";
   if (typeof obj.content === "string") return obj.content;
+  // ⭐ Coze 实测结构：obj.content.answer 是增量文本片段
+  if (obj.content && typeof obj.content.answer === "string") return obj.content.answer;
   if (obj.data && typeof obj.data.content === "string") return obj.data.content;
-  if (typeof obj.answer === "string") return obj.answer;
   if (obj.data && typeof obj.data.answer === "string") return obj.data.answer;
+  if (typeof obj.answer === "string") return obj.answer;
   if (obj.choices && obj.choices[0]?.delta?.content)
     return obj.choices[0].delta.content;
   return "";
@@ -57,8 +60,6 @@ export default function Page() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  // 调试模式：收集 Coze 原始 SSE 数据，用于排查 extractText 匹配问题（上线前删除）
-  const [debugEvents, setDebugEvents] = useState<string[]>([]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const sessionRef = useRef<string>("");
@@ -77,8 +78,6 @@ export default function Page() {
     const text = input.trim();
     if (!text || loading) return;
     setError("");
-    // 调试：每次发送清空上次的事件记录
-    setDebugEvents([]);
     const userMsg: Msg = { role: "user", content: text };
     const assistantMsg: Msg = { role: "assistant", content: "", streaming: true };
     setMessages((prev) => [...prev, userMsg, assistantMsg]);
@@ -145,11 +144,6 @@ export default function Page() {
             if (obj.type === "thinking" || obj.type === "done") continue;
             if (isFinish(obj, lastEvent)) continue;
             const t = extractText(obj);
-            // 调试：记录每条原始数据及提取结果（上线前删除此段）
-            const debugLine =
-              `[event: ${lastEvent || "-"}] extractText="${t || "(空)"}" raw=${data}`;
-            setDebugEvents((prev) => [...prev.slice(-49), debugLine]);
-            console.log("[COZE-SSE-DEBUG]", debugLine);
             if (t) newText += t;
           } catch (e: any) {
             // JSON 解析失败时如果是代理层的 error，抛出
@@ -272,24 +266,6 @@ export default function Page() {
         </div>
 
         {error && <div className="error-bar">⚠️ {error}</div>}
-
-        {/* 调试面板：显示 Coze 原始 SSE 数据（用于排查 extractText 匹配问题，上线前删除） */}
-        {debugEvents.length > 0 && (
-          <div style={{
-            margin: "8px 12px", padding: "10px", background: "#1f2430", color: "#a0e8af",
-            borderRadius: "8px", fontSize: "11px", fontFamily: "monospace",
-            maxHeight: "200px", overflow: "auto", lineHeight: "1.5", whiteSpace: "pre-wrap",
-            wordBreak: "break-all"
-          }}>
-            <div style={{ color: "#ffd700", marginBottom: "4px" }}>
-              🔍 COZE 原始 SSE 数据（{debugEvents.length} 条事件）
-              — 请把下面内容复制给熠熠：
-            </div>
-            {debugEvents.map((line, i) => (
-              <div key={i}>{line}</div>
-            ))}
-          </div>
-        )}
 
         <div className="composer">
           <textarea
