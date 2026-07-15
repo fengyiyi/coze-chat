@@ -5,7 +5,7 @@
   "description": "基于 Coze 智能体的流式对话前端，部署于阿里云 ESA（边缘安全加速）Serverless",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/prebuild.cjs && next build",
     "serve": "node server.mjs",
     "typecheck": "tsc --noEmit"
   },
