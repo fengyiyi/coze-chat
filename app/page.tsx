@@ -133,10 +133,18 @@ export default function Page() {
           if (!data || data === "[DONE]") continue;
           try {
             const obj = JSON.parse(data);
+            // 处理代理层错误事件
+            if (obj.type === "error") {
+              throw new Error(obj.message || "上游服务错误");
+            }
+            // 跳过 ping/done 等控制事件
+            if (obj.type === "thinking" || obj.type === "done") continue;
             if (isFinish(obj, lastEvent)) continue;
             const t = extractText(obj);
             if (t) newText += t;
-          } catch {
+          } catch (e: any) {
+            // JSON 解析失败时如果是代理层的 error，抛出
+            if (e?.message) throw e;
             // 容错：忽略无法解析的行
           }
         }
