@@ -6,7 +6,7 @@ import remarkGfm from "remark-gfm";
 
 // ============ 可配置项 ============
 const BOT_NAME = "爱立方爱国主义教育启蒙智能体";
-const BOT_DESC = "由 Coze 智能体驱动 · 流式对话 · 仅限授权域名访问";
+const BOT_DESC = "学爱国启蒙，玩主题玩具，趣味知识科普，互动游戏陪伴幼儿成长。";
 const DEFAULT_SESSION_ID = "3Zvk1mhLLkTwQ9E70tUAn";
 // ===================================
 
@@ -204,7 +204,7 @@ export default function Page() {
     <div className="app">
       <div className="card">
         <div className="header">
-          <div className="avatar">🤖</div>
+          <div className="avatar">🐘</div>
           <div>
             <div className="title">{BOT_NAME}</div>
             <div className="subtitle">{BOT_DESC}</div>
