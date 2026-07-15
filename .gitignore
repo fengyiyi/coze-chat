@@ -12,6 +12,9 @@ out/
 .env.local
 .env*.local
 
+# 构建时自动生成的令牌文件（含密钥，切勿提交！）
+src/.coze-token.mjs
+
 # 日志
 *.log
 npm-debug.log*
