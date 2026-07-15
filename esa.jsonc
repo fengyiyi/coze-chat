@@ -1,0 +1,9 @@
+{
+  "name": "coze-chat",
+  "entry": "./src/index.ts",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "assets": {
+    "directory": "./out"
+  }
+}

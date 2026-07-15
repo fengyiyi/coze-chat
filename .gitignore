@@ -1,0 +1,23 @@
+# 依赖
+node_modules/
+
+# Next.js 构建缓存
+.next/
+
+# 静态导出产物（由 ESA 构建生成，无需提交）
+out/
+
+# 环境变量 / 密钥 —— 切勿提交！
+.env
+.env.local
+.env*.local
+
+# 日志
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 系统文件
+.DS_Store
+Thumbs.db
