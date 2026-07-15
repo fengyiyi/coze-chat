@@ -65,9 +65,25 @@ async function handleChat(request, env) {
 
   // 2) 令牌必须存在（服务端，前端永不接触）
   if (!token) {
-    return new Response("Server misconfiguration: COZE_TOKEN missing", {
-      status: 500,
-    });
+    // 调试信息：输出 env 对象状态，排查环境变量注入问题（上线前请删除此段）
+    const envKeys = env ? Object.keys(env).join(", ") : "(env is null/undefined)";
+    const envType = typeof env;
+    const token1 = getEnv("COZE_TOKEN_1", env);
+    const token2 = getEnv("COZE_TOKEN_2", env);
+    const tokenFull = getEnv("COZE_TOKEN", env);
+    const debugInfo = {
+      envType,
+      envKeys,
+      token1_len: token1 ? token1.length : 0,
+      token2_len: token2 ? token2.length : 0,
+      tokenFull_len: tokenFull ? tokenFull.length : 0,
+      hint: "如果在「基本信息→构建信息→环境变量」中配置的，那是不对的——那里只给 npm run build 用。需要找到函数运行时环境变量的入口。",
+    };
+    return new Response(
+      "Server misconfiguration: COZE_TOKEN missing\n\nDebug: " +
+        JSON.stringify(debugInfo, null, 2),
+      { status: 500 }
+    );
   }
 
   // 3) 解析请求体
